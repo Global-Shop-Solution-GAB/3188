@@ -1,0 +1,18 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+' Renames Script 1 button
+' 4/15/2010
+' Hook 14460
+' JSO
+
+Variable.Passed.000022.Set("Vendor Notes")
+
+Program.Sub.Main.End
+
+
