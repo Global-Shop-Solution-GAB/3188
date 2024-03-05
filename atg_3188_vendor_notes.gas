@@ -1,0 +1,122 @@
+Program.Sub.ScreenSU.Start
+gui.Form1..create
+gui.Form1..caption("Vendor Notes")
+gui.Form1..size(7125,6240)
+gui.Form1..position(0,0)
+gui.Form1..event(unload,form1_unload)
+gui.Form1..alwaysontop(False)
+gui.Form1..fontname("Arial")
+gui.Form1..fontsize(8)
+gui.Form1..forecolor(0)
+gui.Form1..fontstyle(,,,,)
+gui.Form1..BackColor(-2147483633)
+gui.Form1..controlbox(True)
+gui.Form1..maxbutton(True)
+gui.Form1..minbutton(True)
+gui.Form1..mousepointer(0)
+gui.Form1..moveable(True)
+gui.Form1..sizeable(True)
+gui.Form1..ShowInTaskBar(True)
+gui.Form1..titlebar(True)
+gui.Form1.txtVend.create(textbox,"",True,1215,300,0,245,500,False,0,Arial,8,-2147483643,1)
+gui.Form1.lbl1.create(label,"Vendor",True,1050,255,0,245,190,True,0,Arial,8,-2147483633,0)
+gui.Form1.lbl2.create(label,"Note",True,870,255,0,245,1000,True,0,Arial,8,-2147483633,0)
+gui.Form1.mltxtNotes.create(textboxm)
+gui.Form1.mltxtNotes.text("")
+gui.Form1.mltxtNotes.visible(True)
+gui.Form1.mltxtNotes.size(6420,3300)
+gui.Form1.mltxtNotes.zorder(0)
+gui.Form1.mltxtNotes.position(245,1300)
+gui.Form1.mltxtNotes.enabled(True)
+gui.Form1.mltxtNotes.alignment(0)
+gui.Form1.mltxtNotes.fontname("Arial")
+gui.Form1.mltxtNotes.fontsize(8)
+gui.Form1.mltxtNotes.BackColor(-2147483643)
+gui.Form1.cmd1.create(button)
+gui.Form1.cmd1.caption("Save")
+gui.Form1.cmd1.visible(True)
+gui.Form1.cmd1.size(855,375)
+gui.Form1.cmd1.zorder(0)
+gui.Form1.cmd1.position(2915,4950)
+gui.Form1.cmd1.enabled(True)
+gui.Form1.cmd1.fontname("Arial")
+gui.Form1.cmd1.fontsize(8)
+gui.Form1.cmd1.event(click,cmd1_click)
+gui.Form1.txtName.create(textbox,"",True,2925,300,0,1800,490,False,0,Arial,8,-2147483643,1)
+gui.Form1.lbl3.create(label,"Name",True,1935,255,0,1845,215,True,0,Arial,8,-2147483633,0)
+
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+
+Program.Sub.Main.Start
+' Screen to enter custom vendor notes
+' Hook 14,480  (script 1 button on vendor master)
+' Originally for Krendl Machine
+' JSO
+' 4/15/2010
+
+Variable.global.sVendor.Declare(String)
+Variable.global.sVendName.Declare(String)
+
+Function.ODBC.Connection!con.OpenConnection(Variable.Ambient.PDSN,Variable.Ambient.PUser,Variable.Ambient.PPass,180)
+
+V.global.sVendor.Set(V.Passed.000002)
+V.Global.sVendName.Set(V.Passed.000048)
+
+Function.Intrinsic.Control.CallSub(Loaddata)
+
+Gui.form1..show
+
+Program.Sub.Main.End
+
+
+program.sub.cmd1_click.start
+Variable.Local.sSQL.Declare(String)
+
+Function.Intrinsic.String.Concat("SELECT * FROM atg_116_vend_notes WHERE VENDOR = '",V.Global.sVendor,"'",V.local.sSQL)
+Function.ODBC.Connection!con.OpenRecordsetRW("rst1",V.Local.sSQL)
+Function.Intrinsic.Control.If(V.ODBC.con!rst1.EOF,=,True)
+	Function.ODBC.con!rst1.AddNew
+	Function.ODBC.con!rst1.Set!VENDOR(V.Global.sVendor)
+	Function.ODBC.con!rst1.Set!VEND_NAME(V.Global.sVendName)
+Function.Intrinsic.Control.Endif
+Function.ODBC.con!rst1.Set!NOTES(V.Screen.Form1!mltxtNotes.Text)
+Function.odbc.con!rst1.Update
+Function.ODBC.con!rst1.Close
+
+Function.Intrinsic.Control.CallSub(Form1_unload)
+	
+program.sub.cmd1_click.end
+
+
+program.sub.form1_unload.start
+Function.Intrinsic.Control.End
+
+program.sub.form1_unload.end
+
+
+Program.Sub.LoadData.Start
+Variable.Local.sSQL.Declare(String)
+
+
+Gui.Form1.txtVend.text(V.Global.sVendor)
+Gui.Form1.txtName.Text(V.Global.sVendName)
+
+Function.Intrinsic.String.Concat("SELECT NOTES FROM atg_116_vend_notes WHERE VENDOR = '",V.Global.sVendor,"'",V.Local.sSQL)
+Function.ODBC.Connection!con.OpenRecordsetRO("rst1",V.Local.sSQL)
+Function.Intrinsic.Control.If(V.ODBC.con!rst1.EOF,=,False)
+	Gui.Form1.mltxtNotes.Text(V.ODBC.con!rst1.FieldVal!NOTES)
+Function.Intrinsic.Control.EndIf
+Function.ODBC.con!rst1.Close
+
+
+Program.Sub.LoadData.End
+
+
+
